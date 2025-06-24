@@ -84,4 +84,4 @@ Questa base può essere estesa con:
 
 ## 👨‍💻 Autore
 
-Progetto creato e mantenuto da **[Il tuo nome o team]**
+Progetto creato e mantenuto da **Amdrea Natoni**
