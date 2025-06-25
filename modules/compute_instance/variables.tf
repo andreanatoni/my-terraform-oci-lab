@@ -10,6 +10,11 @@ variable "subnet_id" {
   type = string
 }
 
+variable "image_id" {
+  description = "OCID of the image to use for the compute instance"
+  type        = string
+}
+
 variable "shape" {
   type    = string
   default = "VM.Standard.A1.Flex"

@@ -17,7 +17,7 @@ resource "oci_core_instance" "vm" {
 
   source_details {
     source_type = "image"
-    source_id   = data.oci_core_images.linux_image.images[0].id
+    source_id   = var.image_id
   }
 
   metadata = {
