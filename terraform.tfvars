@@ -1,6 +1,0 @@
-compartment_id = "ocid1.compartment.oc1..aaaaaaaatlquegn3qt76l2bg2722vplfswiykiqm5sdpkrm655oewnrmrpga"
-tenancy_id       = "ocid1.tenancy.oc1..aaaaaaaawxav5xaxqcjz2xeqwbrjc6nlkdmzuxt6gs2j434skcomz7jzgjaa"
-user_id          = "ocid1.user.oc1..aaaaaaaaz2fvoqv34jwwioovnywtg7w6og2yhmekw3ty6p2rt6ytstagokia"
-fingerprint      = "c0:6d:27:39:5f:86:9f:36:8b:da:eb:7b:a6:62:9f:16"
-private_key_path = "~/.oci/oci_api_key_public.pem"
-region_id        = "uk-london-1"
