@@ -1,0 +1,31 @@
+variable "tenancy_id" {
+  type = string
+}
+
+variable "compartment_id" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+
+variable "shape" {
+  type    = string
+  default = "VM.Standard.A1.Flex"
+}
+
+variable "instance_name" {
+  type    = string
+  default = "my-vm"
+}
+
+variable "hostname_label" {
+  type    = string
+  default = "myvm"
+}
+
+variable "ssh_public_key_path" {
+  type = string
+  default = "~/.ssh/id_rsa.pub"
+}
