@@ -29,3 +29,15 @@ variable "ssh_public_key_path" {
   type = string
   default = "~/.ssh/id_rsa.pub"
 }
+
+variable "ocpus" {
+  description = "Number of OCPUs for the instance"
+  type        = number
+  default     = 1
+}
+
+variable "memory_in_gbs" {
+  description = "Amount of memory (in GBs) for the instance"
+  type        = number
+  default     = 8
+}

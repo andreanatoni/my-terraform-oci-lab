@@ -4,6 +4,11 @@ resource "oci_core_instance" "vm" {
   display_name        = var.instance_name
   shape               = var.shape
 
+  shape_config {
+    ocpus         = var.ocpus
+    memory_in_gbs = var.memory_in_gbs
+  }
+
   create_vnic_details {
     subnet_id        = var.subnet_id
     assign_public_ip = true
