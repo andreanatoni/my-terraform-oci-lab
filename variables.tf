@@ -1,6 +1,5 @@
 variable "compartment_id" {
   type = string
-  default = "ocid1.tenancy.oc1..aaaaaaaawxav5xaxqcjz2xeqwbrjc6nlkdmzuxt6gs2j434skcomz7jzgjaa"
 }
 
 variable "tenancy_id" {
@@ -23,7 +22,7 @@ variable "private_key_path" {
   type        = string
 }
 
-variable "region_id" {
+variable "region" {
   description = "OCI region"
   type        = string
   default     = "uk-london-1"

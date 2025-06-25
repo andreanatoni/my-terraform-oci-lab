@@ -1,1 +1,17 @@
-terraform.tfvars
+# File di stato e backup Terraform
+*.tfstate
+*.tfstate.backup
+
+# File di piano Terraform
+*.tfplan
+
+# File di override locali
+*.tfvars
+*.auto.tfvars
+
+# File di crash log Terraform
+crash.log
+
+# Cartelle generate
+.terraform/
+.terraform.lock.hcl
