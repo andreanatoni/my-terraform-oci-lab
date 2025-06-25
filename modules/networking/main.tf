@@ -102,6 +102,15 @@ resource "oci_core_security_list" "lab_sl_public" {
     }
     stateless = false
   }  
+  ingress_security_rules {
+  protocol = "6"
+  source = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  tcp_options {
+    min = 22
+    max = 22
+  }
+}
 }
 
 resource "oci_core_security_list" "lab_sl_private" {
