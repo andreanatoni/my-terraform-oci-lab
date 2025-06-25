@@ -1,1 +1,0 @@
-compartment_id = "ocid1.compartment.oc1..aaaaaaaatlquegn3qt76l2bg2722vplfswiykiqm5sdpkrm655oewnrmrpga"
