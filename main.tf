@@ -24,12 +24,3 @@ module "compute_instance" {
   shape = "VM.Standard.A1.Flex"
   ssh_public_key_path = "~/.ssh/id_rsa.pub"
 }
-
-module "instance_configuration" {
-  source = "./modules/instance_configuration"
-  compartment_id = var.compartment_id
-  subnet_id_private = module.networking.lab_subnet_private_1
-  image_id = "ocid1.image.oc1.uk-london-1.aaaaaaaaxyz..."
-  ssh_public_key_path  = "~/.ssh/id_rsa.pub"
-  cloud_init_path = "./scripts/cloud-init.sh"
-}
