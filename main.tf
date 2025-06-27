@@ -39,4 +39,8 @@ module "instance_pool" {
   instance_pool_name  = module.instance_pool.instance_pool_name
 }
 
+module "autoscaling" {
+  source = "./modules/autoscaling"
+  compartment_id = var.compartment_id
+}
 
