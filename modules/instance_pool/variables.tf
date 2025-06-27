@@ -18,9 +18,3 @@ variable "availability_domain" {
   description = "The availability domain to launch the instance pool in"
   type        = string
 }
-
-variable "instance_pool_name" {
-  description = "The name of the instance pool."
-  type        = string
-  default     = "lab-instance-pool"   
-}
