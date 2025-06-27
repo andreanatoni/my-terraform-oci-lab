@@ -27,6 +27,16 @@ module "load_balancer" {
   source = "./modules/load_balancer"
   compartment_id = var.compartment_id
   lab_subnet_public_1 = module.networking.lab_subnet_public_1
+  instance_pool_id     = oci_core_instance_pool.lab_instance_pool.id
   instance_ip_address = module.compute_instance.instance_ip_address
 }
+
+module "instance_pool" {
+  source = "./modules/instance_pool"
+  compartment_id = var.compartment_id
+  availability_domain = module.instance_configuration.availability_domain
+  instance_pool_size = module.instance_pool.instance_pool_size
+  instance_pool_name  = module.instance_pool.instance_pool_name
+}
+
 

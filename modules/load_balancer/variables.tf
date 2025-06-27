@@ -12,3 +12,8 @@ variable compartment_id {
   description = "OCID of the compartment where the load balancer will be created"
   type        = string  
 }
+
+variable "instance_pool_id" {
+  description = "OCID dell'instance pool da cui ricavare le istanze per i backend"
+  type        = string
+}

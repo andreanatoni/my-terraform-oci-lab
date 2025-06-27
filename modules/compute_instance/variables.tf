@@ -46,3 +46,9 @@ variable "memory_in_gbs" {
   type        = number
   default     = 8
 }
+
+variable "instance_ip_address" {
+  description = "IP address for the instance"
+  type        = string
+  default     = null
+}

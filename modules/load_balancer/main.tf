@@ -20,7 +20,7 @@ resource oci_load_balancer_backend_set lab_backend_set {
     url_path = "/"
     port = 80
     return_code = "200"
-    interval_in_millis = 10000
+    interval_ms = 10000
     timeout_in_millis = 2000
     retries = 3
   }
@@ -30,7 +30,7 @@ resource oci_load_balancer_backend_set lab_backend_set {
 
 data "oci_core_instance_pool_instances" "lab_instance_pool" {
   compartment_id   = var.compartment_id
-  instance_pool_id = oci_core_instance_pool.your_instance_pool.id
+  instance_pool_id = var.instance_pool_id
 }
 
 # Recupera gli attachment delle VNIC per le istanze del pool
