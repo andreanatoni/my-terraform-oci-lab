@@ -1,6 +1,6 @@
-resource "oci_core_instance_configuration" "app_config" {
+resource "oci_core_instance_configuration" "lab_instance_configuration" {
   compartment_id = var.compartment_id
-  display_name = var.config_name
+  display_name = var.lab_instance_config_name
 
   instance_details {
     instance_type = "compute"

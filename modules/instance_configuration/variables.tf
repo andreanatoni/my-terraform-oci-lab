@@ -2,7 +2,7 @@ variable "compartment_id" {
   type = string
 }
 
-variable "config_name" {
+variable "lab_instance_config_name" {
   type = string
   default = "app-instance-config"
 }
