@@ -35,8 +35,8 @@ module "instance_pool" {
   source = "./modules/instance_pool"
   compartment_id = var.compartment_id
   availability_domain = module.instance_configuration.availability_domain
-  instance_pool_size = module.instance_pool.instance_pool_size
-  instance_pool_name  = module.instance_pool.instance_pool_name
+  instance_pool_size = var.instance_pool_size
+  instance_pool_name  = var.instance_pool_name
 }
 
 module "autoscaling" {

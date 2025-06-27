@@ -11,7 +11,7 @@ variable "compartment_id" {
 variable "instance_pool_size" {
   description = "The size of the instance pool."
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "availability_domain" {
