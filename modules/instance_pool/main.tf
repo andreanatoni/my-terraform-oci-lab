@@ -11,14 +11,3 @@ resource "oci_core_instance_pool" "lab_instance_pool" {
   }
   
 }
-
-resource "oci_core_instance_pool_load_balancer_attachment" "lab_lb_attachment" {
-  instance_pool_id  = oci_core_instance_pool.lab_instance_pool.id
-  load_balancer_id  = var.load_balancer_id
-  backend_set_name  = var.backend_set_name
-  port = var.load_balancer_port
-  vnic_selection {
-    subnet_id = var.subnet_id
-  }
-}
-

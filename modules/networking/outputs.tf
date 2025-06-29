@@ -17,3 +17,8 @@ output "lab_subnet_private_2" {
   description = "OCID of the private_2 subnet"
   value = oci_core_subnet.lab_subnet_private_2.id
 }
+
+output "lab_load_balancer_id" {
+  description = "OCID of the lab load balancer"
+  value = oci_load_balancer_load_balancer.lab_public_load_balancer.id 
+}

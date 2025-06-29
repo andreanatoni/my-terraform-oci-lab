@@ -18,6 +18,7 @@ module "compute_instance" {
 module "instance_configuration" {
   source = "./modules/instance_configuration"
   compartment_id = var.compartment_id
+  availability_domain = var.availability_domain
   lab_instance_config_name = "web-server-instance-"
   image_id = "ocid1.image.oc1.uk-london-1.aaaaaaaa3pzzp6xdpaijaubxeht6hfjz7ccdegksqsggrcs5jb5nzq2g6niq"
   subnet_id_private = module.networking.lab_subnet_private_1
@@ -27,8 +28,10 @@ module "load_balancer" {
   source = "./modules/load_balancer"
   compartment_id = var.compartment_id
   lab_subnet_public_1 = module.networking.lab_subnet_public_1
-  instance_pool_id     = oci_core_instance_pool.lab_instance_pool.id
+  instance_pool_id     = module.instance_pool.instance_pool_id
+  load_balancer_id     = module.networking.lab_load_balancer_id
   instance_ip_address = module.compute_instance.instance_ip_address
+  pool_instances = module.instance_pool.pool_instances
 }
 
 module "instance_pool" {
@@ -42,5 +45,5 @@ module "instance_pool" {
 module "autoscaling" {
   source = "./modules/autoscaling"
   compartment_id = var.compartment_id
+  lab_instance_pool_id = module.instance_pool.lab_instance_pool_id
 }
-

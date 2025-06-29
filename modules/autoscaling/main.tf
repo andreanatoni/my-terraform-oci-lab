@@ -1,6 +1,6 @@
 resource oci_autoscaling_auto_scaling_configuration lab_autoscaling_config {
   auto_scaling_resources {
-    id   = oci_core_instance_pool.lab_instance_pool.id
+    id   = var.instance_pool_id
     type = "instancePool"
   }
   compartment_id = var.compartment_id

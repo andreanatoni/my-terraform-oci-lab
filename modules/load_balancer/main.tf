@@ -52,22 +52,22 @@ data "oci_core_vnic" "vnics" {
 
 resource "oci_load_balancer_backend" "lab_backends" {
   for_each = data.oci_core_vnic.vnics
-
   load_balancer_id = oci_load_balancer_load_balancer.lab_public_load_balancer.id
   backend_set_name = oci_load_balancer_backend_set.lab_backend_set.name
   ip_address = each.value.private_ip
   port = 80
   weight = 1
+  drain = false
+  offline = false
 }
 
 # Listener per il Load Balancer
 
-resource oci_load_balancer_listener lab_listener {
+resource oci_load_balancer_listener "lab_listener" {
+  default_backend_set_name = oci_load_balancer_backend_set.lab_backend_set.name
   load_balancer_id = oci_load_balancer_load_balancer.lab_public_load_balancer.id
   name = "lab-listener"
   port = 80
   protocol = "HTTP"
-
-  backend_set_name = oci_load_balancer_backend_set.lab_backend_set.name
 }
 

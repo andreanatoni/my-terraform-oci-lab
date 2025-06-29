@@ -17,3 +17,17 @@ variable "instance_pool_id" {
   description = "OCID dell'instance pool da cui ricavare le istanze per i backend"
   type        = string
 }
+
+variable "load_balancer_id" {
+  description = "OCID del Load Balancer da utilizzare"
+  type        = string
+}
+
+variable "pool_instances" {
+  description = "List of instances in the instance pool"
+  type = list(object({
+    id = string,
+    display_name = string,
+    availability_domain = string
+  })) 
+}

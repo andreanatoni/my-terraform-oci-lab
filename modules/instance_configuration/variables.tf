@@ -41,3 +41,7 @@ variable "cloud_init_path" {
   type = string
   default = "./scripts/cloud-init.sh"
 }
+
+variable "availability_domain" {
+  type = string
+}

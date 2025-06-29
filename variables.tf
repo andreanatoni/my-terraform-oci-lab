@@ -41,3 +41,13 @@ variable "instance_pool_name" {
   default     = "lab_instance_pool"
   
 }
+
+variable "lab_instance_pool_id" {
+  description = "The OCID of the instance pool to be used for autoscaling"
+  type        = string
+}
+
+variable "availability_domain" {
+  description = "The availability domain to launch resources in"
+  type        = string
+}
