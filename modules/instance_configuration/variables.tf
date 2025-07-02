@@ -3,28 +3,28 @@ variable "compartment_id" {
 }
 
 variable "lab_instance_config_name" {
-  type = string
+  type    = string
   default = "app-instance-config"
 }
 
 variable "shape" {
-  type = string
+  type    = string
   default = "VM.Standard.E4.Flex"
 }
 
 variable "ocpus" {
-  type = number
+  type    = number
   default = 1
 }
 
 variable "memory_in_gbs" {
-  type = number
+  type    = number
   default = 8
 }
 
 variable "image_id" {
   description = "OCID dell'immagine da usare (es. Oracle Linux)"
-  type = string
+  type        = string
 }
 
 variable "subnet_id_private" {
@@ -32,14 +32,14 @@ variable "subnet_id_private" {
 }
 
 variable "ssh_public_key_path" {
-  type = string
+  type    = string
   default = "~/.ssh/id_rsa.pub"
 }
 
 variable "cloud_init_path" {
   description = "Path to the cloud-init script to execute at first boot"
-  type = string
-  default = "./scripts/cloud-init.sh"
+  type        = string
+  default     = "./scripts/cloud-init.sh"
 }
 
 variable "availability_domain" {

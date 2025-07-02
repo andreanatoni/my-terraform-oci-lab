@@ -30,8 +30,8 @@ data "oci_identity_availability_domains" "ads" {
 }
 
 data "oci_core_images" "linux_image" {
-  compartment_id = var.compartment_id
-  operating_system = "Oracle Linux"
+  compartment_id           = var.compartment_id
+  operating_system         = "Oracle Linux"
   operating_system_version = "8"
-  shape = var.shape
+  shape                    = var.shape
 }

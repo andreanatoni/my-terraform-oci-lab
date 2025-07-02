@@ -18,3 +18,8 @@ variable "availability_domain" {
   description = "The availability domain to launch the instance pool in"
   type        = string
 }
+
+variable "instance_configuration_id" {
+  description = "OCID of the instance configuration to use"
+  type        = string
+}

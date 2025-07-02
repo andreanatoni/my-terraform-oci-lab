@@ -1,9 +1,9 @@
 # Creo la VCN e i relativi componenti
 resource "oci_core_vcn" "lab_vcn" {
   compartment_id = var.compartment_id
-  display_name = "LAB-VCN-01"
-  cidr_blocks = ["10.0.0.0/16"]
-  dns_label = "labvcn"
+  display_name   = "LAB-VCN-01"
+  cidr_blocks    = ["10.0.0.0/16"]
+  dns_label      = "labvcn"
 }
 
 # Internet Gateway
@@ -69,7 +69,7 @@ resource "oci_core_route_table" "lab_private_rt" {
     network_entity_id = oci_core_nat_gateway.lab_nat_gw.id
   }
 
-    route_rules {
+  route_rules {
     destination       = data.oci_core_services.oci_services.services[0].cidr_block
     destination_type  = "SERVICE_CIDR_BLOCK"
     network_entity_id = oci_core_service_gateway.lab_sgw.id
@@ -80,11 +80,11 @@ resource "oci_core_route_table" "lab_private_rt" {
 
 resource "oci_core_security_list" "lab_sl_public" {
   compartment_id = var.compartment_id
-  vcn_id = oci_core_vcn.lab_vcn.id
-  display_name = "LAB-SECLIST-PUBLIC"
+  vcn_id         = oci_core_vcn.lab_vcn.id
+  display_name   = "LAB-SECLIST-PUBLIC"
   ingress_security_rules {
-    protocol = "6"
-    source = "0.0.0.0/0"
+    protocol    = "6"
+    source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
     tcp_options {
       min = 80
@@ -93,33 +93,33 @@ resource "oci_core_security_list" "lab_sl_public" {
     stateless = false
   }
   ingress_security_rules {
-    protocol = "6"
-    source = "0.0.0.0/0"
+    protocol    = "6"
+    source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
     tcp_options {
       min = 443
       max = 443
     }
     stateless = false
-  }  
+  }
   ingress_security_rules {
-  protocol = "6"
-  source = "0.0.0.0/0"
-  source_type = "CIDR_BLOCK"
-  tcp_options {
-    min = 22
-    max = 22
-   }
- }
+    protocol    = "6"
+    source      = "0.0.0.0/0"
+    source_type = "CIDR_BLOCK"
+    tcp_options {
+      min = 22
+      max = 22
+    }
+  }
 }
 
 resource "oci_core_security_list" "lab_sl_private" {
   compartment_id = var.compartment_id
-  vcn_id = oci_core_vcn.lab_vcn.id
-  display_name = "LAB-SECLIST-PRIVATE"
+  vcn_id         = oci_core_vcn.lab_vcn.id
+  display_name   = "LAB-SECLIST-PRIVATE"
   ingress_security_rules {
-    protocol = "6"
-    source = "10.0.0.0/16"
+    protocol    = "6"
+    source      = "10.0.0.0/16"
     source_type = "CIDR_BLOCK"
     tcp_options {
       min = 80
@@ -128,68 +128,68 @@ resource "oci_core_security_list" "lab_sl_private" {
     stateless = false
   }
   ingress_security_rules {
-    protocol = "6"
-    source = "10.0.0.0/16"
+    protocol    = "6"
+    source      = "10.0.0.0/16"
     source_type = "CIDR_BLOCK"
     tcp_options {
       min = 443
       max = 443
     }
     stateless = false
-  }  
+  }
 }
 
 # Ottengo la security list di default
 
 resource "oci_core_default_security_list" "default_sl" {
-  compartment_id = var.compartment_id
+  compartment_id             = var.compartment_id
   manage_default_resource_id = oci_core_vcn.lab_vcn.default_security_list_id
-  display_name = "Defaul Security List"
+  display_name               = "Defaul Security List"
 }
 
 # Subnets
 
 # Public 1
 resource "oci_core_subnet" "lab_subnet_public_1" {
-    compartment_id = var.compartment_id
-    display_name = "LAB-SNT-PUBLIC-1"
-    vcn_id = oci_core_vcn.lab_vcn.id
-    cidr_block = "10.0.0.0/24"
-    route_table_id = oci_core_route_table.lab_public_rt.id
-    prohibit_public_ip_on_vnic = false
-    dns_label = "labsntpublic1"
-    security_list_ids = [ 
-      oci_core_security_list.lab_sl_public.id,
-      oci_core_default_security_list.default_sl.id
-    ]
+  compartment_id             = var.compartment_id
+  display_name               = "LAB-SNT-PUBLIC-1"
+  vcn_id                     = oci_core_vcn.lab_vcn.id
+  cidr_block                 = "10.0.0.0/24"
+  route_table_id             = oci_core_route_table.lab_public_rt.id
+  prohibit_public_ip_on_vnic = false
+  dns_label                  = "labsntpublic1"
+  security_list_ids = [
+    oci_core_security_list.lab_sl_public.id,
+    oci_core_default_security_list.default_sl.id
+  ]
 }
 
 # Private 1
 resource "oci_core_subnet" "lab_subnet_private_1" {
-    compartment_id = var.compartment_id
-    display_name = "LAB-SNT-PRIVATE-1"
-    vcn_id = oci_core_vcn.lab_vcn.id
-    cidr_block = "10.0.1.0/24"
-    route_table_id = oci_core_route_table.lab_private_rt.id
-    prohibit_public_ip_on_vnic = true
-    dns_label = "labsntprivate1"
-    security_list_ids = [ 
-      oci_core_security_list.lab_sl_private.id,
-      oci_core_default_security_list.default_sl.id
-    ]
+  compartment_id             = var.compartment_id
+  display_name               = "LAB-SNT-PRIVATE-1"
+  vcn_id                     = oci_core_vcn.lab_vcn.id
+  cidr_block                 = "10.0.1.0/24"
+  route_table_id             = oci_core_route_table.lab_private_rt.id
+  prohibit_public_ip_on_vnic = true
+  dns_label                  = "labsntprivate1"
+  security_list_ids = [
+    oci_core_security_list.lab_sl_private.id,
+    oci_core_default_security_list.default_sl.id
+  ]
 }
 
 # Private 2
 resource "oci_core_subnet" "lab_subnet_private_2" {
-    compartment_id = var.compartment_id
-    display_name = "LAB-SNT-PRIVATE-2"
-    vcn_id = oci_core_vcn.lab_vcn.id
-    cidr_block = "10.0.2.0/24"
-    route_table_id = oci_core_route_table.lab_private_rt.id
-    prohibit_public_ip_on_vnic = true
-    dns_label = "labsntprivate2"
-    security_list_ids = [ 
-      oci_core_security_list.lab_sl_private.id,
-      oci_core_default_security_list.default_sl.id
-    ]
+  compartment_id             = var.compartment_id
+  display_name               = "LAB-SNT-PRIVATE-2"
+  vcn_id                     = oci_core_vcn.lab_vcn.id
+  cidr_block                 = "10.0.2.0/24"
+  route_table_id             = oci_core_route_table.lab_private_rt.id
+  prohibit_public_ip_on_vnic = true
+  dns_label                  = "labsntprivate2"
+  security_list_ids = [
+    oci_core_security_list.lab_sl_private.id,
+    oci_core_default_security_list.default_sl.id
+  ]
 }

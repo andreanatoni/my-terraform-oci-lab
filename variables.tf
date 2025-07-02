@@ -32,14 +32,14 @@ variable "instance_pool_size" {
   description = "The size of the instance pool."
   type        = number
   default     = 2
-  
+
 }
 
 variable "instance_pool_name" {
   description = "The name of the instance pool."
   type        = string
   default     = "lab_instance_pool"
-  
+
 }
 
 variable "lab_instance_pool_id" {
