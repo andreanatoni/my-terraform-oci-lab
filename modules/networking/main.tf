@@ -109,8 +109,8 @@ resource "oci_core_security_list" "lab_sl_public" {
   tcp_options {
     min = 22
     max = 22
-  }
-}
+   }
+ }
 }
 
 resource "oci_core_security_list" "lab_sl_private" {

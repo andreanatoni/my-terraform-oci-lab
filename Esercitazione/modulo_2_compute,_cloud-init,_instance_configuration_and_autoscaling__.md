@@ -1,66 +1,118 @@
-# 🧪 Esercitazione 2 – Compute, Cloud-init, Instance Configuration & AutoScaling
-Compute, Cloud-init, Instance Configuration & AutoScaling  
-## ✅ MODULO 2 – Istanza Apache con Instance Pool e AutoScaling
+# ✅ Scenario 2 – Oracle Cloud-init and AutoScaling
 
-> **Obiettivo**  
-> Creare un'istanza che installa Apache all'avvio tramite `cloud-init`, salvarne la configurazione come base per un Instance Pool, attivare AutoScaling e testare il comportamento sotto carico.
+> **Obiettivo**: Deploy di un'applicazione web Apache su OCI usando cloud-init, Instance Configuration, Instance Pool e AutoScaling su Oracle Linux 8.
 
 ---
 
-## Checklist passo-passo (Console OCI salvo dove indicato)
+## 🧩 Pre-requisiti
 
-| ✔︎ | Passo | Dettagli / Azione |
-|---|-------|------------------|
-| ☐ | **1. Creare uno script Cloud-init** | Prepara localmente il seguente script (da convertire in base64 o incollare direttamente nella console):  
-<pre>
+- Accesso a OCI Console con permessi su compute/networking/autoscaling
+- Compartment assegnato
+- VCN: `Cloud-Init Challenge VCN` con subnet pubblica `Cloud-Init Challenge SNT`
+- Chiave SSH pubblica:  
+  [PublicKey.pub](https://objectstorage.us-ashburn-1.oraclecloud.com/n/tenancyname/b/PBT_Storage/o/PublicKey.pub)
+
+---
+
+## 🔧 Task 1(a) – Creazione Compute VM con Cloud-Init
+
+### ☁️ Cloud-init script (da incollare nella sezione “Paste cloud-init script”):
+
+```
 #!/bin/bash
-sudo dnf install httpd -y
+sudo dnf install -y httpd
 sudo systemctl enable httpd
 sudo systemctl start httpd
-echo "&lt;!doctype html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hostname: $(hostname)&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" | sudo tee /var/www/html/index.html
-</pre> |
+sudo firewall-offline-cmd --add-service=http
+sudo systemctl restart firewalld
+echo "<html><body><h1>Apache is running on $(hostname)</h1></body></html>" > /var/www/html/index.html
+```
 
-| ☐ | **2. Creare un’istanza di Compute** | **Console → Compute ▸ Instances → Create Instance**  
-- **Name:** `web-apache-01`  
-- **Image:** Oracle Linux 8  
-- **Shape:** `VM.Standard.E2.1.Micro`  
-- **Subnet:** `pub-subnet` creata nel modulo 1  
-- **Network Security Group:** `nsg-pub` con regole SSH/HTTP  
-- **Add SSH Key:** inserisci la tua chiave  
-- **Advanced Options → Paste cloud-init script** nel campo **User Data** |
+### 📋 Istruzioni OCI Console:
 
-| ☐ | **3. Verifica che Apache sia attivo** | Una volta avviata:  
-- Apri browser su `http://<public_ip>` → Deve comparire: `Hostname: web-apache-01`  
-- **Console → Compute ▸ Instance → Public IP** |
+1. Vai su **Compute → Instances → Create Instance**
+2. Nome: `pbt_cloud_init_vm_01`
+3. Image: **Oracle Linux 8**
+4. Shape: `VM.Standard.A1.Flex` (1 OCPU, 6 GB RAM)
+5. Availability Domain: uno qualsiasi
+6. Network:
+   - VCN: `Cloud-Init Challenge VCN`
+   - Subnet: `Cloud-Init Challenge SNT`
+   - Public IP: **Enabled**
+7. SSH key: incolla il contenuto di `PublicKey.pub`
+8. Incolla lo script cloud-init
+9. Crea l’istanza
 
-| ☐ | **4. Creare una Instance Configuration** | **Console → Compute ▸ Instance Configurations → Create**  
-- **Name:** `web-apache-config`  
-- **Base it on instance:** `web-apache-01`  
-- Lascia i parametri di boot e networking invariati (puoi deselezionare il boot volume backup)  
-- **Create** |
+✔️ Test: accedi a `http://<Public-IP>` e verifica che Apache risponda.
 
-| ☐ | **5. Creare Instance Pool** | **Console → Compute ▸ Instance Pools → Create Instance Pool**  
-- **Name:** `web-apache-pool`  
-- **Instance Configuration:** `web-apache-config`  
-- **Availability Domain:** seleziona AD1  
-- **Number of instances:** `2`  
-- **Subnet:** `pub-subnet`  
-- **NSG:** seleziona `nsg-pub`  
-- **Create** |
+---
 
-| ☐ | **6. Configura AutoScaling** | All’interno del pool → **Autoscaling → Create Autoscaling Configuration**  
-- **Name:** `web-autoscale`  
-- **Min:** 2  
-- **Max:** 5  
-- **Metric:** CPUUtilization  
-- **Scale-out rule:**  
-  - CPU > 60% per 5 min → add 1  
-- **Scale-in rule:**  
-  - CPU < 30% per 5 min → remove 1  
-- **Cooldown period:** 300s  
-- **Create** |
+## 🛠️ Task 1(b) e Task 2 – Instance Configuration, Pool, Autoscaling
 
-| ☐ | **7. Genera carico per test AutoScaling** | **SSH su una delle istanze nel pool**  
-- Verifica con:
-  ```bash
-  top
+### 🏗️ Step 1 – Create Instance Configuration
+
+1. Vai su **Compute → Instance Configurations → Create**
+2. Nome: `pbt_cloud_init_config_01`
+3. Source: seleziona l’istanza `pbt_cloud_init_vm_01`
+4. Salva
+
+---
+
+### 🌀 Step 2 – Crea Instance Pool
+
+1. Vai su **Compute → Instance Pools → Create**
+2. Nome: `pbt_cloud_init_pool_01`
+3. Instance Configuration: `pbt_cloud_init_config_01`
+4. Initial number of instances: `1`
+5. Subnet: `Cloud-Init Challenge SNT`
+6. Public IP: **Enabled**
+7. Crea
+
+---
+
+### 📈 Step 3 – Crea AutoScaling Configuration
+
+1. Seleziona pool `pbt_cloud_init_pool_01` → Tab **Autoscaling**
+2. Click **Create Autoscaling Configuration**
+3. Nome: `pbt_cloud_autoscaling_config_01`
+4. Tipo: **Metric-based**
+5. Metric: **CPU Utilization**
+6. Cooldown: `300` seconds
+7. Scaling limits:
+   - Min: `1`
+   - Max: `2`
+   - Initial: `1`
+8. **Scale-out rule**
+   - Operator: `Greater than`
+   - Threshold: `75%`
+   - Action: `Add 1 instance`
+9. **Scale-in rule**
+   - Operator: `Less than`
+   - Threshold: `25%`
+   - Action: `Remove 1 instance`
+10. Create
+
+---
+
+## ✅ Verifica finale
+
+- Visualizza `http://<Load Balanced Instance IP>` o IP singolo per test
+- Se vuoi testare Autoscaling manualmente, puoi generare carico CPU via SSH:
+```
+sudo dnf install -y stress
+stress --cpu 2 --timeout 300
+```
+
+---
+
+## ✅ Checklist
+
+- [x] Compute instance creata con Apache via cloud-init
+- [x] Instance Configuration generata
+- [x] Instance Pool configurato
+- [x] AutoScaling con soglie CPU abilitato
+- [x] Firewall HTTP aperto e test completato
+
+---
+
+**Esercitazione completata con successo! 🚀**

@@ -1,53 +1,73 @@
-# 🧪 Esercitazione 3 – Object Storage, Lifecycle, CLI & Instance Principal
-Object Storage, Lifecycle, CLI & Instance Principal  
-## ✅ MODULO 3 – Gestione di bucket via CLI con policy di lifecycle
+# ✅ Scenario 3 – Use the OCI CLI to Work with Object Storage from a Compute Instance
 
-> **Obiettivo**  
-> Usare **OCI CLI da una Compute Instance** con **Instance Principal** per creare un bucket, caricare oggetti, applicare una Object Lifecycle Policy, e verificare i permessi assegnati.
+> **Obiettivo**: Caricare file in Object Storage da una Compute Instance tramite la OCI CLI e applicare una policy di lifecycle per eliminare file temporanei dopo 30 giorni.
 
 ---
 
-## Checklist passo-passo (tutto eseguibile in un’unica istanza Compute via CloudShell + SSH)
+## 🧩 Pre-requisiti
+
+- Compute instance con **OCI CLI installata**
+- Autenticazione via **Instance Principal**
+- Directory con file da caricare: `~/dir_to_upload`
+- Accesso tramite **Cloud Shell → Ephemeral Private Network Setup**
+- Chiave SSH privata disponibile:  
+  [PKey.key](https://objectstorage.us-ashburn-1.oraclecloud.com/n/tenancyname/b/PBT_Storage/o/PKey.key)
+
+---
+
+## 🧠 Obiettivo finale
+
+Creare un bucket chiamato `CloudOpsBucket`, caricare il contenuto della directory `~/dir_to_upload`, e impostare una policy di lifecycle per eliminare automaticamente i file con prefisso `temp/` dopo 30 giorni.
+
+---
+
+## 🔐 Connessione via SSH (da Cloud Shell)
 
 ```bash
-# STEP 1: Connettersi alla Compute Instance via CloudShell usando SSH
-# (Console → Compute → Instances → <istanza> → Copy SSH Command)
-# Da CloudShell:
-ssh -i ~/.ssh/id_rsa opc@<public_ip>
+ssh -i /path/to/PKey.key opc@<private-ip>
+```
 
-# STEP 2: Verificare che l’istanza usi INSTANCE PRINCIPAL (no config file)
-# Questo comando DEVE restituire dati, altrimenti i permessi non sono corretti:
-oci os ns get
+---
 
-# Se ricevi "NotAuthorizedOrNotFound", assicurati che:
-# - La VM sia parte di una Dynamic Group
-# - Sia presente una policy come:
-#   allow dynamic-group <nome> to manage object-family in compartment <compartimento>
+## 🛠️ Task 1 – Creazione del Bucket
 
-# STEP 3: Creare un bucket con OCI CLI nel namespace corrente
-NAMESPACE=$(oci os ns get --query "data" --raw-output)
-BUCKET_NAME="cli-demo-bucket"
-oci os bucket create --name $BUCKET_NAME --compartment-id <compartment_ocid> --public-access-type NoPublicAccess
+```bash
+oci os bucket create \
+  --compartment-id <OCID_COMPARTIMENTO> \
+  --name CloudOpsBucket \
+  --auth instance_principal \
+  --versioning Enabled
+```
 
-# STEP 4: Creare 3 file di esempio
-echo "log 1" > logs1.txt
-echo "log 2" > logs2.txt
-echo "log 3" > logs3.txt
+📌 Sostituisci `<OCID_COMPARTIMENTO>` con l’OCID reale fornito per l’esame.
 
-# STEP 5: Caricare i file nel bucket
-oci os object put --bucket-name $BUCKET_NAME --name logs/logs1.txt --file logs1.txt
-oci os object put --bucket-name $BUCKET_NAME --name logs/logs2.txt --file logs2.txt
-oci os object put --bucket-name $BUCKET_NAME --name logs/logs3.txt --file logs3.txt
+---
 
-# STEP 6: Creare la Lifecycle Policy JSON (es: archive dopo 30 giorni)
-cat > lifecycle.json <<EOF
+## 📤 Task 2 – Upload della Directory
+
+```bash
+oci os object bulk-upload \
+  --bucket-name CloudOpsBucket \
+  --src-dir ~/dir_to_upload \
+  --auth instance_principal
+```
+
+✔️ Questo carica tutti i file dalla directory e sotto-directory in Object Storage.
+
+---
+
+## ♻️ Task 3 – Creazione Lifecycle Policy
+
+### 1. Crea un file `rule.json` con il seguente contenuto:
+
+```json
 {
   "rules": [
     {
-      "name": "archive-logs",
-      "action": "ARCHIVE",
+      "name": "Delete-Rule",
+      "action": "DELETE",
       "objectNameFilter": {
-        "includePrefixes": ["logs/"]
+        "inclusionPrefixes": ["temp/"]
       },
       "timeAmount": 30,
       "timeUnit": "DAYS",
@@ -55,17 +75,28 @@ cat > lifecycle.json <<EOF
     }
   ]
 }
-EOF
+```
 
-# STEP 7: Applicare la Lifecycle Policy al bucket
+### 2. Applica la policy:
+
+```bash
 oci os object-lifecycle-policy put \
-  --bucket-name $BUCKET_NAME \
-  --lifecycle-policy file://lifecycle.json
+  --bucket-name CloudOpsBucket \
+  --namespace $(oci os ns get --query "data" --raw-output --auth instance_principal) \
+  --lifecycle-policy file://rule.json \
+  --auth instance_principal
+```
 
-# STEP 8: Verifica della policy applicata
-oci os object-lifecycle-policy get --bucket-name $BUCKET_NAME
+---
 
-# STEP 9: Elencare gli oggetti e controllare che siano in stato "Standard"
-oci os object list --bucket-name $BUCKET_NAME --prefix logs/
+## ✅ Checklist finale
 
-# Ricorda: solo dopo 30 giorni verranno spostati in ARCHIVE.
+- [x] Connessione SSH stabilita da Cloud Shell via Ephemeral Private Network
+- [x] Bucket `CloudOpsBucket` creato nel compartimento corretto
+- [x] Tutti i file caricati tramite `bulk-upload`
+- [x] Lifecycle Policy applicata per eliminare `temp/` dopo 30 giorni
+- [x] Test visivo del contenuto e policy verificata in Console (facoltativo)
+
+---
+
+**Esercitazione completata con successo! 🚀**
