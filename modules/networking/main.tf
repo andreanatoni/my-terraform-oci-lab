@@ -78,10 +78,94 @@ resource "oci_core_route_table" "lab_private_rt" {
 
 # Security Lists
 
+resource "oci_core_security_list" "lab_sl_private" {
+  compartment_id = var.compartment_id
+  vcn_id         = oci_core_vcn.lab_vcn.id
+  display_name   = "LAB-SECLIST-PRIVATE"
+  
+  # ===== INGRESS RULES =====
+  
+  # ICMP (ping) dalla subnet pubblica
+  ingress_security_rules {
+    protocol    = "1"  # ICMP
+    source      = "10.0.0.0/24"  # Subnet pubblica
+    source_type = "CIDR_BLOCK"
+    stateless   = false
+  }
+  
+  # ICMP (ping) interna alla VCN
+  ingress_security_rules {
+    protocol    = "1"  # ICMP
+    source      = "10.0.0.0/16"  # Tutta la VCN
+    source_type = "CIDR_BLOCK"
+    stateless   = false
+  }
+  
+  # SSH dalla subnet pubblica
+  ingress_security_rules {
+    protocol    = "6"  # TCP
+    source      = "10.0.0.0/24"  # Subnet pubblica
+    source_type = "CIDR_BLOCK"
+    tcp_options {
+      min = 22
+      max = 22
+    }
+    stateless = false
+  }
+  
+  # HTTP dalla subnet pubblica (per load balancer)
+  ingress_security_rules {
+    protocol    = "6"  # TCP
+    source      = "10.0.0.0/24"  # Subnet pubblica
+    source_type = "CIDR_BLOCK"
+    tcp_options {
+      min = 80
+      max = 80
+    }
+    stateless = false
+  }
+  
+  # HTTPS dalla subnet pubblica
+  ingress_security_rules {
+    protocol    = "6"  # TCP
+    source      = "10.0.0.0/24"  # Subnet pubblica
+    source_type = "CIDR_BLOCK"
+    tcp_options {
+      min = 443
+      max = 443
+    }
+    stateless = false
+  }
+  
+  # Comunicazione interna tra istanze private
+  ingress_security_rules {
+    protocol    = "6"  # TCP
+    source      = "10.0.1.0/24"  # Subnet privata
+    source_type = "CIDR_BLOCK"
+    stateless   = false
+  }
+  
+  # ===== EGRESS RULES =====
+  
+  # Tutto il traffico uscente
+  egress_security_rules {
+    protocol         = "all"
+    destination      = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    stateless        = false
+  }
+}
+
+# Aggiorna anche la security list pubblica per completezza:
+
 resource "oci_core_security_list" "lab_sl_public" {
   compartment_id = var.compartment_id
   vcn_id         = oci_core_vcn.lab_vcn.id
   display_name   = "LAB-SECLIST-PUBLIC"
+  
+  # ===== INGRESS RULES =====
+  
+  # HTTP da Internet
   ingress_security_rules {
     protocol    = "6"
     source      = "0.0.0.0/0"
@@ -92,6 +176,8 @@ resource "oci_core_security_list" "lab_sl_public" {
     }
     stateless = false
   }
+  
+  # HTTPS da Internet
   ingress_security_rules {
     protocol    = "6"
     source      = "0.0.0.0/0"
@@ -102,6 +188,8 @@ resource "oci_core_security_list" "lab_sl_public" {
     }
     stateless = false
   }
+  
+  # SSH da Internet
   ingress_security_rules {
     protocol    = "6"
     source      = "0.0.0.0/0"
@@ -110,32 +198,25 @@ resource "oci_core_security_list" "lab_sl_public" {
       min = 22
       max = 22
     }
-  }
-}
-
-resource "oci_core_security_list" "lab_sl_private" {
-  compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.lab_vcn.id
-  display_name   = "LAB-SECLIST-PRIVATE"
-  ingress_security_rules {
-    protocol    = "6"
-    source      = "10.0.0.0/16"
-    source_type = "CIDR_BLOCK"
-    tcp_options {
-      min = 80
-      max = 80
-    }
     stateless = false
   }
+  
+  # ICMP da Internet (per ping)
   ingress_security_rules {
-    protocol    = "6"
-    source      = "10.0.0.0/16"
+    protocol    = "1"  # ICMP
+    source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
-    tcp_options {
-      min = 443
-      max = 443
-    }
-    stateless = false
+    stateless   = false
+  }
+  
+  # ===== EGRESS RULES =====
+  
+  # Tutto il traffico uscente
+  egress_security_rules {
+    protocol         = "all"
+    destination      = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    stateless        = false
   }
 }
 

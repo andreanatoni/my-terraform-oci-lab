@@ -17,11 +17,11 @@ resource "oci_core_instance" "vm" {
 
   source_details {
     source_type = "image"
-    source_id   = var.image_id
+    source_id   = data.oci_core_images.linux_image.images[0].id
   }
 
   metadata = {
-    ssh_authorized_keys = file(var.ssh_public_key_path)
+    ssh_authorized_keys = var.ssh_public_key
   }
 }
 

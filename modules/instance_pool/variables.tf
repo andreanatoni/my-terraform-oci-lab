@@ -1,6 +1,7 @@
 variable "instance_pool_name" {
   description = "The name of the instance pool."
   type        = string
+  default = "lab_intance_pool"
 }
 
 variable "compartment_id" {
@@ -11,15 +12,20 @@ variable "compartment_id" {
 variable "instance_pool_size" {
   description = "The size of the instance pool."
   type        = number
-  default     = 2
+  default     = 1
 }
 
-variable "availability_domain" {
-  description = "The availability domain to launch the instance pool in"
-  type        = string
+variable "ad_list" {
+  description = "Lista di availability domain names da usare nel pool"
+  type        = list(string)
 }
 
 variable "instance_configuration_id" {
   description = "OCID of the instance configuration to use"
+  type        = string
+}
+
+variable "subnet_id_private" {
+  description = "The OCID of the private subnet for the instance pool"
   type        = string
 }

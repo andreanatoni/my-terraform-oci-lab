@@ -10,11 +10,6 @@ variable "subnet_id" {
   type = string
 }
 
-variable "image_id" {
-  description = "OCID of the image to use for the compute instance"
-  type        = string
-}
-
 variable "shape" {
   type    = string
   default = "VM.Standard.A1.Flex"
@@ -30,9 +25,9 @@ variable "hostname_label" {
   default = "myvm"
 }
 
-variable "ssh_public_key_path" {
-  type    = string
-  default = "~/.ssh/id_rsa.pub"
+variable "ssh_public_key" {
+  description = "Contenuto della chiave pubblica SSH"
+  type        = string
 }
 
 variable "ocpus" {

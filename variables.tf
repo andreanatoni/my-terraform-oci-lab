@@ -17,21 +17,20 @@ variable "fingerprint" {
   type        = string
 }
 
-variable "private_key_path" {
-  description = "Path to the private API key"
+variable "ssh_public_key_path" {
+  description = "Path to SSH public key file"
   type        = string
+  default     = "/home/oracle/.ssh/id_rsa.pub"
 }
-
 variable "region" {
   description = "OCI region"
   type        = string
-  default     = "uk-london-1"
 }
 
 variable "instance_pool_size" {
   description = "The size of the instance pool."
   type        = number
-  default     = 2
+  default     = 1
 
 }
 
@@ -42,12 +41,9 @@ variable "instance_pool_name" {
 
 }
 
-variable "lab_instance_pool_id" {
-  description = "The OCID of the instance pool to be used for autoscaling"
+variable "private_key_path" {
+  description = "Path to the private key for OCI authentication"
   type        = string
-}
-
-variable "availability_domain" {
-  description = "The availability domain to launch resources in"
-  type        = string
+  default     = "~/.oci/oci_api_key.pem"
+  
 }
