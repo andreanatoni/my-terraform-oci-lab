@@ -1,87 +1,133 @@
 # OCI Terraform Lab Infrastructure
 
-Questo repository contiene una configurazione Terraform per la creazione di un'infrastruttura di rete base su **Oracle Cloud Infrastructure (OCI)**.  
+Questo repository è un laboratorio pratico per la creazione di un'infrastruttura su Oracle Cloud Infrastructure (OCI) utilizzando **Terraform** con un approccio completamente **modulare**. Contiene una configurazione Terraform per la creazione di un'infrastruttura di rete base su **Oracle Cloud Infrastructure (OCI)**.  
 È pensata come punto di partenza per progetti più complessi e modulabili, con struttura organizzata e riutilizzabile.
 
-## 🧱 Struttura attuale
+L'obiettivo è:
 
-La configurazione attuale crea:
+- Costruire moduli riutilizzabili e componibili.
+- Evitare l'uso di variabili hard-coded.
+- Facilitare la scalabilità e manutenibilità dell'infrastruttura.
+- Fare pratica con le principali risorse OCI.
 
-- Una **Virtual Cloud Network (VCN)** con CIDR `10.0.0.0/16`
-- Tre **subnet**:
-  - 1 pubblica (`10.0.0.0/24`)
-  - 2 private (`10.0.1.0/24`, `10.0.2.0/24`)
-- Gateway:
-  - **Internet Gateway** (per uscita pubblica)
-  - **NAT Gateway** (per uscita privata)
-  - **Service Gateway** (per servizi Oracle)
-- Route Tables per subnet pubbliche e private
-- Security List per traffico HTTP/HTTPS
-- Utilizzo della **default security list** associata alla VCN
+---
 
-## 📁 Struttura del repository
+## 📐 Struttura del progetto
 
 ```
-terraform-oci-lab/
-├── main.tf                  # Entry point che richiama i moduli
-├── provider.tf              # Provider OCI
-├── variables.tf             # Variabili globali
-├── terraform.tfvars         # Valori delle variabili
-├── outputs.tf               # Output utili post-deploy
-├── modules/
-│   └── networking/
-│       ├── main.tf          # Risorse di rete
-│       ├── variables.tf     # Variabili del modulo di rete
-│       ├── outputs.tf       # Output del modulo
-└── README.md                # Documentazione (questo file)
+my-terraform-oci-lab/
+├── main.tf
+├── variables.tf
+├── provider.tf
+├── outputs.tf
+├── version.tf
+└── modules/
+    ├── autoscaling/
+    ├── compute_instance/
+    ├── instance_configuration/
+    ├── instance_pool/
+    ├── load_balancer/
+    └── networking/
 ```
 
-## 🚀 Prerequisiti
+---
 
-- [Terraform CLI](https://developer.hashicorp.com/terraform/downloads) >= 1.0.0
-- [OCI CLI configurata](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm) e file `~/.oci/config` settato correttamente
-- Un bucket per salvare eventualmente lo **state remoto** (opzionale ma consigliato)
+## ⚙️ Moduli disponibili
 
-## ⚙️ Utilizzo
+### 🔌 `networking`
+Crea:
+- VCN
+- 3 subnet (pubblica + 2 private)
+- Internet Gateway, NAT Gateway, Service Gateway
+- Security List dettagliate
+- Route Tables
+
+### 🖥 `compute_instance`
+Lancia una singola VM con:
+- Shape configurabile (default: A1.Flex)
+- SSH key injection
+- VNIC pubblica
+
+### 📦 `instance_configuration`
+Genera un'istanza configurabile per un pool:
+- Basata su immagine Oracle Linux 8
+- Supporto a cloud-init (parametrizzabile)
+
+### 👥 `instance_pool`
+Crea un pool di istanze:
+- Basato su `instance_configuration`
+- Multi-AD (Placement config dinamico)
+- Hostname e display name personalizzati
+
+### 🚀 `autoscaling`
+Applica una policy di scaling:
+- Basata su utilizzo CPU
+- Threshold configurati (75% scale-out, 25% scale-in)
+- Supporta `cool_down_in_seconds`
+
+### 🌐 `load_balancer`
+Crea un Load Balancer pubblico:
+- Backend dinamici (istanze del pool)
+- BackendSet con Health Check HTTP
+- Listener configurato sulla porta 80
+
+---
+
+## 🔧 Requisiti
+
+- Terraform ≥ 1.0.0
+- Provider OCI ≥ 4.67.3
+- OCI CLI configurato o variabili d'ambiente
+- SSH key pair disponibile
+- Compartment, Tenancy e User OCID
+
+---
+
+## 🚀 Esempio di utilizzo
 
 ```bash
-# Inizializza Terraform e scarica i provider
+# Inizializza terraform
 terraform init
 
-# Mostra le modifiche che saranno apportate
-terraform plan
+# Valida i file
+terraform validate
 
-# Applica le modifiche
+# Esegui il deploy
 terraform apply
 ```
 
-## 🔐 Variabili
+---
 
-Variabili definite in `variables.tf` e valorizzate in `terraform.tfvars`:
+## 🎯 Obiettivi didattici
 
-| Nome             | Descrizione                                         | Default         |
-|------------------|-----------------------------------------------------|-----------------|
-| `compartment_id` | OCID del compartimento in cui creare le risorse     | Nessuno         |
-| `region_id`      | Regione OCI in cui operare (es. `uk-london-1`)      | `uk-london-1`   |
+- Familiarizzare con le risorse OCI via Terraform
+- Esercitarsi nel design modulare e riutilizzabile
+- Simulare ambienti reali (VM, Pool, LB, Autoscaling)
+- Applicare best practice di Infrastructure as Code (IaC)
 
-## 📤 Output
+---
 
-Esempi di output disponibili:
+## 📚 Note aggiuntive
 
-- ID della VCN creata
-- ID della subnet pubblica
-- ID delle subnet private
+- Tutti i moduli sono stati progettati per essere **stateless** e **completamente parametrizzabili**.
+- Le risorse sono nomate in modo coerente per facilitare l'integrazione.
+- L’approccio è pensato per essere **incrementale**: puoi commentare/abilitare singoli moduli per test progressivi.
 
-## 🔜 Prossimi sviluppi
+---
 
-Questa base può essere estesa con:
+## 📎 TODO (per espansione futura)
 
-- Modulo `bastion` con istanza compute pubblica
-- Modulo `app_tier` con instance pool + load balancer
-- Modulo `database` per Autonomous DB o DB System
-- Logging, monitoring, alarm
-- IAM roles e policies
+- Aggiunta modulo DNS + DNS privato
+- Modulo per Object Storage
+- Modulo per Database autonomo o VM DB
+- Integrazione con CI/CD Terraform (es. GitHub Actions)
+- Validazione con `terraform-docs`
 
-## 👨‍💻 Autore
+---
 
-Progetto creato e mantenuto da **Amdrea Natoni**
+## 🧑‍💻 Autore
+
+**Andrea Natoni** – [GitHub](https://github.com/) | DevOps, Cloud, IaC enthusiast
+
+---
+
